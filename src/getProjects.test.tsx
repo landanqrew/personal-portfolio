@@ -1,5 +1,6 @@
 import { test, expect } from "bun:test";
-import { getProjects, getProject, writeProjectsLocal, getProjectsLocal } from "./getProjects";
+import { getProjects, getProject } from "./getProjects";
+import { writeProjectsLocal, getProjectsLocal } from "./api/projects";
 
 test("getProjects fetches repositories successfully", async () => {
   const expectedRepoNames = ["simple-jot", "py_asteroids", "goAdvent"];
@@ -29,8 +30,8 @@ test("writeProjectsLocal writes projects to local storage", async () => {
     const repos = await getProjects();
     console.log("----- REPOS: -----\n", repos.length);
     await writeProjectsLocal(repos);
-    /*const reposLocal = await getProjectsLocal();
-    expect(reposLocal).toEqual(repos);*/
+    const reposLocal = await getProjectsLocal();
+    expect(reposLocal.map(r => r.id)).toEqual(repos.map(r => r.id));
   } catch (error) {
     console.error(error);
     error = true;

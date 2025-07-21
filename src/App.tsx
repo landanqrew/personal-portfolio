@@ -4,7 +4,10 @@ import "./index.css";
 
 import logo from "./assets/logo.svg";
 import reactLogo from "./assets/react.svg";
-import { syncAndFetchProjects, type Repo } from "./getProjects";
+import { type Repo } from "./getProjects";
+import { CardView } from "./cardView";
+import { type CardButtonProps } from "./cardButton";
+import { EyeIcon } from "./EyeIcon";
 
 export function App() {
   const [projects, setProjects] = useState<Repo[]>([]);
@@ -16,7 +19,12 @@ export function App() {
       try {
         setLoading(true);
         setError(null);
-        const fetchedProjects = await syncAndFetchProjects();
+        // Call the new API endpoint
+        const response = await fetch("/api/projects");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const fetchedProjects: Repo[] = await response.json();
         setProjects(fetchedProjects);
       } catch (err) {
         console.error("Failed to load projects:", err);
@@ -28,6 +36,15 @@ export function App() {
 
     fetchProjects();
   }, []);
+
+  const handleCardClick = (projectName: string) => {
+    console.log(`Card clicked: ${projectName}`);
+    // You can navigate or show more details here
+  };
+
+  const viewProjectOnGitHub = (url: string) => {
+    window.open(url, "_blank");
+  };
 
   return (
     <div className="max-w-7xl mx-auto p-8 text-center relative z-10">
@@ -51,13 +68,31 @@ export function App() {
       {loading && <p>Loading projects...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
       {!loading && !error && projects.length > 0 && (
-        <div>
-          <h2>My Projects:</h2>
-          <ul>
-            {projects.map((project) => (
-              <li key={project.id}>{project.name}</li>
-            ))}
-          </ul>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+          {projects.map((project) => {
+            const cardButtons: CardButtonProps[] = [
+              {
+                label: "View on GitHub",
+                icon: <EyeIcon />,
+                onClick: (e) => {
+                  e.stopPropagation(); // Prevent card onClick from firing
+                  viewProjectOnGitHub(project.html_url);
+                },
+              },
+              // Add more buttons as needed
+            ];
+
+            return (
+              <CardView
+                key={project.id}
+                image={project.image}
+                name={project.name}
+                description={project.description}
+                buttons={cardButtons}
+                onClick={() => handleCardClick(project.name)}
+              />
+            );
+          })}
         </div>
       )}
       <APITester />

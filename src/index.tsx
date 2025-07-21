@@ -1,5 +1,6 @@
 import { serve } from "bun";
 import index from "./index.html";
+import { syncAndFetchProjects } from "./api/projects";
 
 const server = serve({
   routes: {
@@ -26,6 +27,21 @@ const server = serve({
       return Response.json({
         message: `Hello, ${name}!`,
       });
+    },
+
+    "/api/projects": {
+      async GET(req) {
+        try {
+          const projects = await syncAndFetchProjects();
+          return Response.json(projects);
+        } catch (error) {
+          console.error("Error fetching projects from API:", error);
+          return new Response(JSON.stringify({ message: "Failed to fetch projects" }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+      },
     },
   },
 

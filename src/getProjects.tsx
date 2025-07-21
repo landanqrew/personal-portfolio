@@ -1,6 +1,3 @@
-import { fetch } from "bun";
-import { readJsonFile, writeJsonFile } from "./osUtilities";
-
 export type Repo = {
     id: number;
     name: string;
@@ -67,10 +64,7 @@ export const getProjects = async (): Promise<Repo[]> => {
         }
 
         const data = await response.json();
-        const repos = data.map(mapToRepo);
-        // update local storage
-        writeProjectsLocal(repos);
-        return repos;
+        return data.map(mapToRepo);
     } catch (error) {
         if (error instanceof GitHubAPIError) {
             throw error;
@@ -111,87 +105,3 @@ export const getProject = async (projectName: string): Promise<Repo> => {
         );
     }
 };
-
-
-export async function getProjectsLocal(): Promise<Repo[]> {
-  const datastorePath = './src/datastore/projects.json';
-  const parsedJson: any[] = await readJsonFile(datastorePath);
-  return parsedJson.map((e: any) => mapToRepo(e));
-}
-
-export async function writeProjectsLocal(projectData: Repo[]) {
-  const datastorePath = './src/datastore/projects.json';
-  const fileExists = await Bun.file(datastorePath).exists();
-  if (!fileExists) {
-    console.log("----- NO FILE EXISTS, WRITING TO FILE -----\n");
-    await writeJsonFile(datastorePath, await getProjects());
-    return;
-  }
-  const existingRepos = await getProjectsLocal();
-  let imageMap: Record<string, string> = {};
-  for (const repo of existingRepos) {
-    imageMap[repo.id] = repo.image;
-  }
-
-  const newRepos = await getProjects();
-  for (const repo of newRepos) {
-    if (!imageMap[repo.name]) {
-      imageMap[repo.name] = repo.image;
-    }
-  }
-
-  let i = 0;
-  for (const repo of projectData) {
-    if (repo.id in imageMap && imageMap[repo.id] !== undefined) {
-      projectData[i]!.image = imageMap[repo.id] || "./src/assets/questionmark.svg";
-      i++;
-    }
-  }
-
-  // write new data
-  await writeJsonFile(datastorePath, projectData);
-}
-
-export async function updateProjectImage(projectId: number, image: string) {
-  const datastorePath = './src/datastore/projects.json';
-  let repos: Repo[] = await getProjectsLocal();
-  let i = 0;
-  for (const repo of repos) {
-    if (repo.id === projectId) {
-      repos[i]!.image = image;
-      break;
-    }
-    i++;
-  }
-
-  await writeJsonFile(datastorePath, repos);
-}
-
-export async function syncAndFetchProjects(): Promise<Repo[]> {
-  let gitHubProjects: Repo[] = [];
-  try {
-    gitHubProjects = await getProjects();
-  } catch (error) {
-    console.error("Failed to fetch projects from GitHub");
-    return await getProjectsLocal();
-  }
-
-  const localProjects = await getProjectsLocal();
-
-  let imageMap: Record<string, string> = {};
-  for (const repo of localProjects) {
-    imageMap[repo.id] = repo.image;
-  }
-
-  let i = 0;
-  // update images
-  for (const project of gitHubProjects) {
-    if (project.id in imageMap && imageMap[project.id] !== undefined) {
-      gitHubProjects[i]!.image = imageMap[project.id] || "./src/assets/questionmark.svg";
-      i++;
-    }
-  }
-
-  await writeProjectsLocal(gitHubProjects);
-  return gitHubProjects;
-}
