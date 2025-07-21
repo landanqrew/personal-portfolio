@@ -1,6 +1,13 @@
-# bun-react-tailwind-template
+# Landan's Personal Portfolio #
 
+### Quick Summary ###
+A personal project to demonstrate learned competencies in React, Next.js and fundamental programming concepts.
+
+
+### Setup ###
 To install dependencies:
+
+install [bun]("https://webinstall.dev/bun/")
 
 ```bash
 bun install
@@ -17,5 +24,3 @@ To run for production:
 ```bash
 bun start
 ```
-
-This project was created using `bun init` in bun v1.2.19. [Bun](https://bun.com) is a fast all-in-one JavaScript runtime.
