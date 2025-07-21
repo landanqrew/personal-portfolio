@@ -65,3 +65,32 @@ export async function syncAndFetchProjects(): Promise<Repo[]> {
   await writeProjectsLocal(gitHubProjects);
   return gitHubProjects;
 } 
+
+export async function updateProjectProperties(projectObject: {[key: string]: string | number | boolean}) {
+  if (!projectObject.id) {
+    throw new Error("Project ID is required");
+  }
+  const datastorePath = './src/datastore/projects.json';
+  let repos: Repo[] = await getProjectsLocal();
+  let i = 0;
+  for (const repo of repos) {
+    if (repo.id === projectObject.id) {
+      for (const [key, value] of Object.entries(projectObject)) {
+        if (repo.hasOwnProperty(key as keyof Repo)) {
+          const repoKey = key as keyof Repo;
+          if (typeof (repo[repoKey]) === typeof value) {
+            (repos[i]![repoKey] as any) = value; // Use 'any' here for simplicity, or more precise type guards if needed
+          } else if (value === null || value === undefined) {
+            (repos[i]![repoKey] as any) = value; // Allow null/undefined assignments
+          }
+          else {
+            console.warn(`Type mismatch for key ${key}: existing type ${typeof repo[repoKey]}, incoming type ${typeof value}. Value not updated.`);
+          }
+        }
+      }
+      break;
+    }
+    i++;
+  }
+  await writeJsonFile(datastorePath, repos);
+}

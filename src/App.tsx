@@ -8,11 +8,13 @@ import { type Repo } from "./getProjects";
 import { CardView } from "./cardView";
 import { type CardButtonProps } from "./cardButton";
 import { EyeIcon } from "./EyeIcon";
+import { DetailView, type DetailViewField, type DetailViewSection } from "./detailView";
 
 export function App() {
   const [projects, setProjects] = useState<Repo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Repo | null>(null);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -37,10 +39,17 @@ export function App() {
     fetchProjects();
   }, []);
 
-  const handleCardClick = (projectName: string) => {
-    console.log(`Card clicked: ${projectName}`);
-    // You can navigate or show more details here
+  const handleCardClick = (project: Repo) => {
+    console.log(`Card clicked: ${project.name}`);
+    setSelectedProject(project);
   };
+
+  const handleProjectUpdate = (updateObject: {[key: string]: string | number | boolean}) => {
+    fetch("/api/projects/update", {
+      method: "PUT",
+      body: JSON.stringify(updateObject),
+    });
+  }
 
   const viewProjectOnGitHub = (url: string) => {
     window.open(url, "_blank");
@@ -89,13 +98,83 @@ export function App() {
                 name={project.name}
                 description={project.description}
                 buttons={cardButtons}
-                onClick={() => handleCardClick(project.name)}
+                onClick={() => handleCardClick(project)}
               />
             );
           })}
         </div>
       )}
-      <APITester />
+      {selectedProject && (
+        <DetailView
+          headerSection={{
+            sectionHeaders: [
+              {
+                fieldName: "Project Name",
+                fieldValue: selectedProject.name,
+                isEditable: false,
+                htmlTag: "h1",
+                buttons: [],
+                cssClass: "text-5xl font-bold my-4 leading-tight"
+              }
+            ],
+            fields: [
+              {
+                fieldName: "Project Description",
+                fieldValue: selectedProject.description,
+                isEditable: false,
+                htmlTag: "p",
+                buttons: [],
+                cssClass: "text-lg text-gray-400"
+              }
+            ]
+          }}
+          headerButtons={[
+            {
+              label: "Back to Projects",
+              onClick: () => setSelectedProject(null),
+              icon: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" /></svg>
+            },
+            {
+              label: "View on GitHub",
+              icon: <EyeIcon />,
+              onClick: (e) => {
+                e.stopPropagation();
+                viewProjectOnGitHub(selectedProject.html_url);
+              }
+            }
+          ]}
+          sections={[
+            {
+              sectionHeaders: [],
+              fields: Object.entries(selectedProject).map(([key, value]) => {
+                if (key === "insights") {
+                  return {
+                    fieldName: key,
+                    fieldValue: value.toString(),
+                    isEditable: true,
+                    htmlTag: "p",
+                    buttons: [],
+                    onChange: (e: any) => {
+                      handleProjectUpdate({
+                        id: selectedProject.id,
+                        [key]: e.target.value
+                      });
+                    }
+                  }
+                }
+                return {
+                  fieldName: key,
+                  fieldValue: value.toString(),
+                  isEditable: false,
+                  htmlTag: "p",
+                  buttons: [],
+                }
+              }),
+            }
+          ]}
+        />
+      )}
+      {!selectedProject && <APITester />}
     </div>
   );
 }

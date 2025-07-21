@@ -1,6 +1,6 @@
 import { serve } from "bun";
 import index from "./index.html";
-import { syncAndFetchProjects } from "./api/projects";
+import { syncAndFetchProjects, updateProjectProperties } from "./api/projects";
 
 const server = serve({
   routes: {
@@ -36,6 +36,22 @@ const server = serve({
           return Response.json(projects);
         } catch (error) {
           console.error("Error fetching projects from API:", error);
+          return new Response(JSON.stringify({ message: "Failed to fetch projects" }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+          });
+        }
+      },
+    },
+
+    "/api/projects/update": {
+      async PUT(req) {
+        try {
+          const updateObject = await req.json();
+          await updateProjectProperties(updateObject);
+          return Response.json({ message: "Project File Updated" });
+        } catch (error) {
+          console.error("Error updating projects from API:", error);
           return new Response(JSON.stringify({ message: "Failed to fetch projects" }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' }
