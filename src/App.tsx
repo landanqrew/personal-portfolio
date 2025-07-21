@@ -9,12 +9,19 @@ import { CardView } from "./cardView";
 import { type CardButtonProps } from "./cardButton";
 import { EyeIcon } from "./EyeIcon";
 import { DetailView, type DetailViewField, type DetailViewSection } from "./detailView";
+import React from "react";
 
 export function App() {
   const [projects, setProjects] = useState<Repo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedProject, setSelectedProject] = useState<Repo | null>(null);
+
+  // Track renders without causing infinite loop
+  const currentRenderCount = React.useRef(0);
+  currentRenderCount.current += 1;
+
+  console.log('App component rendering, renderCount:', currentRenderCount.current, 'selectedProject:', selectedProject);
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -41,8 +48,14 @@ export function App() {
 
   const handleCardClick = (project: Repo) => {
     console.log(`Card clicked: ${project.name}`);
+    console.log('Setting selectedProject to:', project);
     setSelectedProject(project);
   };
+
+  // Add this debug log to see when selectedProject changes
+  useEffect(() => {
+    console.log('selectedProject state changed to:', selectedProject);
+  }, [selectedProject]);
 
   const handleProjectUpdate = (updateObject: {[key: string]: string | number | boolean}) => {
     fetch("/api/projects/update", {
@@ -77,103 +90,203 @@ export function App() {
       {loading && <p>Loading projects...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
       {!loading && !error && projects.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-          {projects.map((project) => {
-            const cardButtons: CardButtonProps[] = [
-              {
-                label: "View on GitHub",
-                icon: <EyeIcon />,
-                onClick: (e) => {
-                  e.stopPropagation(); // Prevent card onClick from firing
-                  viewProjectOnGitHub(project.html_url);
-                },
-              },
-              // Add more buttons as needed
-            ];
+        <div className="relative mt-8">
+          <div className="flex items-center gap-4">
+            <button 
+              onClick={() => {
+                const container = document.getElementById('projects-carousel');
+                if (container) {
+                  container.scrollBy({ left: -300, behavior: 'smooth' });
+                }
+              }}
+              className="bg-[#fbf0df] text-[#1a1a1a] border-0 p-3 rounded-full font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer z-10"
+              aria-label="Previous projects"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+              </svg>
+            </button>
+            
+            <div 
+              id="projects-carousel"
+              className="flex-1 overflow-x-auto scrollbar-hide"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
+              <div className="flex gap-6 pb-4 py-4" style={{ width: 'max-content' }}>
+                {projects.map((project) => {
+                  const cardButtons: CardButtonProps[] = [
+                    {
+                      label: "View on GitHub",
+                      icon: <EyeIcon />,
+                      onClick: (e) => {
+                        e.stopPropagation(); // Prevent card onClick from firing
+                        viewProjectOnGitHub(project.html_url);
+                      },
+                    },
+                    // Add more buttons as needed
+                  ];
 
-            return (
-              <CardView
-                key={project.id}
-                image={project.image}
-                name={project.name}
-                description={project.description}
-                buttons={cardButtons}
-                onClick={() => handleCardClick(project)}
-              />
-            );
-          })}
+                  return (
+                    <div key={project.id} className="flex-shrink-0 w-80">
+                      <CardView
+                        image={project.image}
+                        name={project.name}
+                        description={project.description}
+                        buttons={cardButtons}
+                        onClick={() => handleCardClick(project)}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+            
+            <button 
+              onClick={() => {
+                const container = document.getElementById('projects-carousel');
+                if (container) {
+                  container.scrollBy({ left: 300, behavior: 'smooth' });
+                }
+              }}
+              className="bg-[#fbf0df] text-[#1a1a1a] border-0 p-3 rounded-full font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer z-10"
+              aria-label="Next projects"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+              </svg>
+            </button>
+          </div>
         </div>
       )}
       {selectedProject && (
         <DetailView
-          headerSection={{
-            sectionHeaders: [
-              {
-                fieldName: "Project Name",
-                fieldValue: selectedProject.name,
-                isEditable: false,
-                htmlTag: "h1",
-                buttons: [],
-                cssClass: "text-5xl font-bold my-4 leading-tight"
-              }
-            ],
-            fields: [
-              {
-                fieldName: "Project Description",
-                fieldValue: selectedProject.description,
-                isEditable: false,
-                htmlTag: "p",
-                buttons: [],
-                cssClass: "text-lg text-gray-400"
-              }
-            ]
-          }}
-          headerButtons={[
-            {
-              label: "Back to Projects",
-              onClick: () => setSelectedProject(null),
-              icon: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" /></svg>
-            },
-            {
-              label: "View on GitHub",
-              icon: <EyeIcon />,
-              onClick: (e) => {
-                e.stopPropagation();
-                viewProjectOnGitHub(selectedProject.html_url);
-              }
-            }
-          ]}
-          sections={[
-            {
+            headerSection={{
               sectionHeaders: [],
-              fields: Object.entries(selectedProject).map(([key, value]) => {
-                if (key === "insights") {
-                  return {
-                    fieldName: key,
-                    fieldValue: value.toString(),
-                    isEditable: true,
-                    htmlTag: "p",
-                    buttons: [],
-                    onChange: (e: any) => {
-                      handleProjectUpdate({
-                        id: selectedProject.id,
-                        [key]: e.target.value
-                      });
-                    }
-                  }
-                }
-                return {
-                  fieldName: key,
-                  fieldValue: value.toString(),
+              fields: [
+                {
+                  fieldName: "",
+                  fieldValue: selectedProject.name,
+                  isEditable: false,
+                  htmlTag: "h1",
+                  buttons: [],
+                  cssClass: "text-3xl font-bold text-[#fbf0df] mb-2"
+                },
+                {
+                  fieldName: "",
+                  fieldValue: selectedProject.description || "No description available",
                   isEditable: false,
                   htmlTag: "p",
                   buttons: [],
+                  cssClass: "text-lg text-[#fbf0df]/80 mb-2 font-mono bg-[#2a2a2a] px-3 py-2 rounded border-l-4 border-[#fbf0df]/30"
                 }
-              }),
-            }
-          ]}
-        />
-      )}
+              ]
+            }}
+            headerButtons={[
+              {
+                label: "Back to Projects",
+                onClick: () => setSelectedProject(null),
+                icon: <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6"><path strokeLinecap="round" strokeLinejoin="round" d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3" /></svg>
+              },
+              {
+                label: "View on GitHub",
+                icon: <EyeIcon />,
+                onClick: (e) => {
+                  e?.stopPropagation();
+                  viewProjectOnGitHub(selectedProject.html_url);
+                }
+              }
+            ]}
+            sections={[
+              {
+                sectionHeaders: [
+                  {
+                    fieldName: "",
+                    fieldValue: "Repository Details",
+                    isEditable: false,
+                    htmlTag: "h2",
+                    buttons: [],
+                    cssClass: "text-xl font-semibold text-[#fbf0df] mb-3"
+                  }
+                ],
+                fields: [
+                  {
+                    fieldName: "Language",
+                    fieldValue: selectedProject.language || "Not specified",
+                    isEditable: false,
+                    htmlTag: "p",
+                    buttons: [],
+                    cssClass: "text-[#fbf0df]/90"
+                  },
+                  {
+                    fieldName: "Stars",
+                    fieldValue: selectedProject.stargazers_count.toString(),
+                    isEditable: false,
+                    htmlTag: "p",
+                    buttons: [],
+                    cssClass: "text-[#fbf0df]/90"
+                  },
+                  {
+                    fieldName: "Forks",
+                    fieldValue: selectedProject.forks_count.toString(),
+                    isEditable: false,
+                    htmlTag: "p",
+                    buttons: [],
+                    cssClass: "text-[#fbf0df]/90"
+                  },
+                  {
+                    fieldName: "Open Issues",
+                    fieldValue: selectedProject.open_issues_count.toString(),
+                    isEditable: false,
+                    htmlTag: "p",
+                    buttons: [],
+                    cssClass: "text-[#fbf0df]/90"
+                  }
+                ]
+              },
+              {
+                sectionHeaders: [
+                  {
+                    fieldName: "",
+                    fieldValue: "Timeline",
+                    isEditable: false,
+                    htmlTag: "h2",
+                    buttons: [],
+                    cssClass: "text-xl font-semibold text-[#fbf0df] mb-3"
+                  }
+                ],
+                fields: [
+                  {
+                    fieldName: "Created",
+                    fieldValue: new Date(selectedProject.created_at).toLocaleDateString(),
+                    isEditable: false,
+                    htmlTag: "p",
+                    buttons: [],
+                    cssClass: "text-[#fbf0df]/90"
+                  },
+                  {
+                    fieldName: "Last Updated",
+                    fieldValue: new Date(selectedProject.updated_at).toLocaleDateString(),
+                    isEditable: false,
+                    htmlTag: "p",
+                    buttons: [],
+                    cssClass: "text-[#fbf0df]/90"
+                  },
+                  {
+                    fieldName: "Last Push",
+                    fieldValue: new Date(selectedProject.pushed_at).toLocaleDateString(),
+                    isEditable: false,
+                    htmlTag: "p",
+                    buttons: [],
+                    cssClass: "text-[#fbf0df]/90"
+                  }
+                ]
+              }
+            ]}
+          />
+        )}
       {!selectedProject && <APITester />}
     </div>
   );

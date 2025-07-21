@@ -48,3 +48,17 @@ body::before {
     animation: none !important;
   }
 }
+
+/* Add carousel scrollbar hiding */
+.scrollbar-hide {
+  -webkit-overflow-scrolling: touch;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Smooth scroll behavior */
+.scrollbar-hide {
+  scroll-behavior: smooth;
+}
