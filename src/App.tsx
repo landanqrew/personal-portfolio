@@ -137,7 +137,7 @@ export function App() {
                   container.scrollBy({ left: -300, behavior: 'smooth' });
                 }
               }}
-              className="bg-[#fbf0df] text-[#fbf0df] border-0 p-3 rounded-full font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer z-10"
+              className="bg-[#fbf0df] text-[#1a1a1a] border-0 p-3 rounded-full font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer z-10"
               aria-label="Previous projects"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
