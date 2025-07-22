@@ -134,7 +134,7 @@ export function App() {
               onClick={() => {
                 const container = document.getElementById('projects-carousel');
                 if (container) {
-                  container.scrollBy({ left: -300, behavior: 'smooth' });
+                  container.scrollBy({ left: -1000, behavior: 'smooth' });
                 }
               }}
               className="bg-[#fbf0df] text-[#1a1a1a] border-0 p-3 rounded-full font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer z-10"
@@ -186,7 +186,7 @@ export function App() {
               onClick={() => {
                 const container = document.getElementById('projects-carousel');
                 if (container) {
-                  container.scrollBy({ left: 300, behavior: 'smooth' });
+                  container.scrollBy({ left: 1000, behavior: 'smooth' });
                 }
               }}
               className="bg-[#fbf0df] text-[#1a1a1a] border-0 p-3 rounded-full font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer z-10"
