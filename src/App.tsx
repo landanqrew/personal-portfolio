@@ -4,6 +4,9 @@ import "./index.css";
 
 import logo from "./assets/logo.svg";
 import reactLogo from "./assets/react.svg";
+import golangLogo from "./assets/go-svgrepo-com.svg";
+import pythonLogo from "./assets/python-svgrepo-com.svg";
+import typescriptLogo from "./assets/typescript-official-svgrepo-com.svg";
 import { type Repo } from "./getProjects";
 import { CardView } from "./cardView";
 import { type CardButtonProps } from "./cardButton";
@@ -80,6 +83,21 @@ export function App() {
           src={reactLogo}
           alt="React Logo"
           className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#61dafbaa] animate-[spin_20s_linear_infinite]"
+        />
+        <img
+          src={golangLogo}
+          alt="Golang Logo"
+          className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#00ACD7aa] scale-120"
+        />
+        <img
+          src={pythonLogo}
+          alt="Python Logo"
+          className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#FFDA4Baa] scale-120"
+        />
+        <img
+          src={typescriptLogo}
+          alt="TypeScript Logo"
+          className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#3178C6aa] scale-120"
         />
       </div>
 

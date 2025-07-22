@@ -84,7 +84,7 @@ export function DetailView(props: DetailViewProps) {
         headerButtonsJSX.push(
             <button 
                 key={`header-button-${i}`}
-                className="bg-[#fbf0df] text-[#1a1a1a] border-0 px-5 py-1.5 rounded-lg font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer whitespace-nowrap"
+                className="bg-[#fbf0df] text-[#1a1a1a] border-0 px-5 py-1.5 rounded-lg font-mono font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer whitespace-nowrap text-sm inline-flex items-center justify-center"
                 onClick={button.onClick}
             >
                 {button.icon && <span className="mr-2">{button.icon}</span>}
