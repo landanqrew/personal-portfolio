@@ -2,11 +2,17 @@ import { useEffect, useState } from "react";
 import { APITester } from "./APITester";
 import "./index.css";
 
-import logo from "./assets/logo.svg";
-import reactLogo from "./assets/react.svg";
-import golangLogo from "./assets/go-svgrepo-com.svg";
-import pythonLogo from "./assets/python-svgrepo-com.svg";
-import typescriptLogo from "./assets/typescript-official-svgrepo-com.svg";
+import {
+    logo,
+    reactLogo,
+    golangLogo,
+    pythonLogo,
+    typescriptLogo,
+    javascriptLogo,
+    questionmarkLogo,
+    LogoMap,
+} from "./assets";
+
 import { type Repo } from "./getProjects";
 import { CardView } from "./cardView";
 import { type CardButtonProps } from "./cardButton";
@@ -73,7 +79,11 @@ export function App() {
 
   return (
     <div className="max-w-7xl mx-auto p-8 text-center relative z-10">
-      <div className="flex justify-center items-center gap-8 mb-8">
+      <div className="flex flex-col items-center justify-center pt-4 pb-2">
+        <h1 className="text-4xl text-[#fbf0df] font-mono font-bold my-4 leading-tight">Creating Robust Software Solutions</h1>
+        <code className="text-lg text-[#fbf0df]/70">Landan Quartemont </code>
+      </div>
+      <div className="flex justify-center items-center gap-8 pt-4">
         <img
           src={logo}
           alt="Bun Logo"
@@ -82,12 +92,12 @@ export function App() {
         <img
           src={reactLogo}
           alt="React Logo"
-          className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#61dafbaa] animate-[spin_20s_linear_infinite]"
+          className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#61dafbaa]"
         />
         <img
           src={golangLogo}
           alt="Golang Logo"
-          className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#00ACD7aa] scale-120"
+          className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#00ACD7aa] scale-200"
         />
         <img
           src={pythonLogo}
@@ -100,15 +110,25 @@ export function App() {
           className="h-24 p-6 transition-all duration-300 hover:drop-shadow-[0_0_2em_#3178C6aa] scale-120"
         />
       </div>
-
-      <h1 className="text-5xl font-bold my-4 leading-tight">Bun + React</h1>
-      <p>
-        Edit <code className="bg-[#1a1a1a] px-2 py-1 rounded font-mono">src/App.tsx</code> and save to test HMR
-      </p>
+      <div className="flex flex-col grid-cols-2 items-center justify-center pt-4 ps-4">
+        <div className="flex flex-col items-center justify-center pt-4">
+          <code className="text-sm text-[#fbf0df]/80 mb-2 font-mono bg-[#2a2a2a] px-3 py-2 pb-2 rounded border-l-4 border-[#fbf0df]/30 text-left">
+          From the desolate and constrained lands of No-Code, I am venturing into the world of native development. I've worked in the industry since 2019 and have worked primarily on
+          intra-organizational software solutions from operations. From field service applications to CRM systems, I've created scalable, light-weight solutions that solve business
+          critical problems. 
+          <br />
+          <br />
+          In my extended time working in no-code, I have developed a strong understanding of system design and architecture. I've worked on projects that have required me to 
+          extend application functionality through various dialects of SQL, JavaScript, and Python. Early 2024, I began a more formal education in software development, and have been 
+          working on projects in Go, Python, and TypeScript ever since. Checkout my <a href="https://github.com/landanqrew" target="_blank" rel="noopener noreferrer">GitHub </a>  
+          for more details.
+          </code>
+        </div>
+      </div>
       {loading && <p>Loading projects...</p>}
       {error && <p className="text-red-500">Error: {error}</p>}
       {!loading && !error && projects.length > 0 && (
-        <div className="relative mt-8">
+        <div className="relative mt-4">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => {
@@ -117,7 +137,7 @@ export function App() {
                   container.scrollBy({ left: -300, behavior: 'smooth' });
                 }
               }}
-              className="bg-[#fbf0df] text-[#1a1a1a] border-0 p-3 rounded-full font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer z-10"
+              className="bg-[#fbf0df] text-[#fbf0df] border-0 p-3 rounded-full font-bold transition-all duration-100 hover:bg-[#f3d5a3] hover:-translate-y-px cursor-pointer z-10"
               aria-label="Previous projects"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
@@ -148,9 +168,9 @@ export function App() {
                   ];
 
                   return (
-                    <div key={project.id} className="flex-shrink-0 w-80">
+                    <div key={project.id} className="flex-shrink-0 w-80 ps-4">
                       <CardView
-                        image={project.image}
+                        image={LogoMap[project.language as keyof typeof LogoMap] || LogoMap["Logo"]}
                         name={project.name}
                         description={project.description}
                         buttons={cardButtons}
@@ -190,7 +210,7 @@ export function App() {
                   isEditable: false,
                   htmlTag: "h1",
                   buttons: [],
-                  cssClass: "text-3xl font-bold text-[#fbf0df] mb-2"
+                  cssClass: "text-3xl font-mono font-bold text-[#fbf0df] mb-2"
                 },
                 {
                   fieldName: "",
@@ -226,7 +246,7 @@ export function App() {
                     isEditable: false,
                     htmlTag: "h2",
                     buttons: [],
-                    cssClass: "text-xl font-semibold text-[#fbf0df] mb-3"
+                    cssClass: "text-xl font-mono font-semibold text-[#fbf0df] mb-3"
                   }
                 ],
                 fields: [
@@ -236,7 +256,7 @@ export function App() {
                     isEditable: false,
                     htmlTag: "p",
                     buttons: [],
-                    cssClass: "text-[#fbf0df]/90"
+                    cssClass: "text-[#fbf0df]/70 font-mono"
                   },
                   {
                     fieldName: "Stars",
@@ -244,7 +264,7 @@ export function App() {
                     isEditable: false,
                     htmlTag: "p",
                     buttons: [],
-                    cssClass: "text-[#fbf0df]/90"
+                    cssClass: "text-[#fbf0df]/70 font-mono"
                   },
                   {
                     fieldName: "Forks",
@@ -252,7 +272,7 @@ export function App() {
                     isEditable: false,
                     htmlTag: "p",
                     buttons: [],
-                    cssClass: "text-[#fbf0df]/90"
+                    cssClass: "text-[#fbf0df]/70 font-mono"
                   },
                   {
                     fieldName: "Open Issues",
@@ -260,7 +280,7 @@ export function App() {
                     isEditable: false,
                     htmlTag: "p",
                     buttons: [],
-                    cssClass: "text-[#fbf0df]/90"
+                    cssClass: "text-[#fbf0df]/70 font-mono"
                   }
                 ]
               },
@@ -282,7 +302,7 @@ export function App() {
                     isEditable: false,
                     htmlTag: "p",
                     buttons: [],
-                    cssClass: "text-[#fbf0df]/90"
+                    cssClass: "text-[#fbf0df]/70 font-mono"
                   },
                   {
                     fieldName: "Last Updated",
@@ -290,7 +310,7 @@ export function App() {
                     isEditable: false,
                     htmlTag: "p",
                     buttons: [],
-                    cssClass: "text-[#fbf0df]/90"
+                    cssClass: "text-[#fbf0df]/70 font-mono"
                   },
                   {
                     fieldName: "Last Push",
@@ -298,14 +318,14 @@ export function App() {
                     isEditable: false,
                     htmlTag: "p",
                     buttons: [],
-                    cssClass: "text-[#fbf0df]/90"
+                    cssClass: "text-[#fbf0df]/70 font-mono"
                   }
                 ]
               }
             ]}
           />
         )}
-      {!selectedProject && <APITester />}
+      {!selectedProject}
     </div>
   );
 }

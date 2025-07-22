@@ -42,7 +42,7 @@ function generateFieldJSX(field: DetailViewField): JSX.Element {
                     type="text" 
                     value={field.fieldValue} 
                     onChange={field.onChange}
-                    className="bg-[#2a2a2a] border border-[#fbf0df]/30 rounded px-3 py-2 text-[#fbf0df] focus:border-[#f3d5a3] focus:outline-none"
+                    className="bg-[#2a2a2a] border border-[#fbf0df]/30 rounded px-3 py-2 font-mono text-[#fbf0df] focus:border-[#f3d5a3] focus:outline-none"
                 />
             </div>
         );
@@ -51,7 +51,7 @@ function generateFieldJSX(field: DetailViewField): JSX.Element {
         if (field.fieldName) {
             return (
                 <div className="flex items-center gap-2">
-                    <span className="font-medium text-[#fbf0df]/70 min-w-[120px]">{field.fieldName}:</span>
+                    <span className="font-medium text-[#fbf0df]/90 min-w-[120px] font-mono">{field.fieldName}:</span>
                     <field.htmlTag className={field.cssClass || "text-[#fbf0df]"}>{field.fieldValue}</field.htmlTag>
                 </div>
             );
@@ -102,14 +102,14 @@ export function DetailView(props: DetailViewProps) {
         for (let i = 0; i < section.sectionHeaders.length; i++) {
             const headerField = section.sectionHeaders[i]!;
             if (!headerField.cssClass) {
-                headerField.cssClass = "text-2xl font-bold";
+                headerField.cssClass = "text-2xl font-mono font-bold";
             }
             sectionJSX.push(<div key={`section-${sectionIndex}-header-${i}`}>{generateFieldJSX(headerField)}</div>);
         }
         
         if (section.sectionDescription) {
             if (!section.sectionDescription.cssClass) {
-                section.sectionDescription.cssClass = "text-lg text-gray-400";
+                section.sectionDescription.cssClass = "text-lg text-[#fbf0df]/80 font-mono";
             }
             sectionJSX.push(<div key={`section-${sectionIndex}-description`}>{generateFieldJSX(section.sectionDescription)}</div>);
         }
